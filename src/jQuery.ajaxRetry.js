@@ -42,7 +42,7 @@
             
             // Returns either a boolean or a promise that'll be resolved with a boolean to determine
             // whether or not we should retry a given request.
-            shouldRetry = function( jqXHR, retryCount, method ) {
+            shouldRetry = function( options, jqXHR, retryCount, method ) {
                 var result,
                     test = options.shouldRetry,
                     type = typeof test;
@@ -55,7 +55,7 @@
                         result = test;
                         break;
                     case "function":
-                        result = test( jqXHR, retryCount, method );
+                        result = options.shouldRetry( jqXHR, retryCount, method );
                         break;
                 }
 
@@ -84,7 +84,7 @@
         (function tryRequest( options, lastJqXHR, finalizer ) {
             // If lastJqXHR === undefined at this point, then it's the first ever request.
             // Ensure that we always proceed without calling the shouldRetry function in that case
-            ( !lastJqXHR ? $.when(true) : shouldRetry(lastJqXHR, retryCount++, options.type || "GET") ).done(function( willRetry ) {
+            ( !lastJqXHR ? $.when(true) : shouldRetry(options, lastJqXHR, retryCount++, options.type || "GET") ).done(function( willRetry ) {
                 if ( willRetry === true ) {
                     (!lastJqXHR ? jqXHR : $.ajax(options) ).then(
                         function( data, textStatus, jqXHR ) {
